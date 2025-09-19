@@ -6,48 +6,48 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 40px auto;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      max-width: 400 px;
+      margin: 40 px auto;
+      padding: 20 px;
+      border: 1 px solid #ddd;
+      border-radius: 8 px;
       background: #f9f9f9;
     }
     label {
       display: block;
-      margin-top: 15px;
+      margin-top: 15 px;
     }
     input[type="text"] {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      padding: 8 px;
+      margin-top: 5 px;
       box-sizing: border-box;
     }
     button {
-      margin-top: 20px;
-      padding: 10px 15px;
+      margin-top: 20 px;
+      padding: 10 px 15 px;
       background-color: #0078D7;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 4 px;
       cursor: pointer;
     }
     button:hover {
       background-color: #005EA2;
     }
     #result {
-      margin-top: 25px;
-      padding: 15px;
+      margin-top: 25 px;
+      padding: 15 px;
       background: #e6f7ff;
-      border: 1px solid #91d5ff;
-      border-radius: 6px;
+      border: 1 px solid #91d5ff;
+      border-radius: 6 px;
     }
     #error {
-      margin-top: 25px;
-      padding: 15px;
+      margin-top: 25 px;
+      padding: 15 px;
       background: #fff1f0;
-      border: 1px solid #ffa39e;
-      border-radius: 6px;
+      border: 1 px solid #ffa39e;
+      border-radius: 6 px;
       color: #cf1322;
     }
   </style>
