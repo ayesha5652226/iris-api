@@ -41,7 +41,7 @@ target_names = model_bundle["target_names"]
 
 @app.get("/")
 def root():
-    return render_templates("index.html")
+    return templates("index.html")
 
 @app.post("/predict")
 def predict(features: IrisFeatures):
