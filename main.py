@@ -6,10 +6,10 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 40px auto;
-      padding: 20px;
-      border: 1px solid #ddd;
+      max-width: 400 px;
+      margin: 40 px auto;
+      padding: 20 px;
+      border: 1 px solid #ddd;
       border-radius: 8px;
       background: #f9f9f9;
     }
