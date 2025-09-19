@@ -41,7 +41,7 @@ target_names = model_bundle["target_names"]
 
 @app.get("/")
 def root():
-    return {"message": "Iris classifier is alive. POST to /predict with sepal/petal measurements."}
+    return render_templates("index.html")
 
 @app.post("/predict")
 def predict(features: IrisFeatures):
