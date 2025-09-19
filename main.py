@@ -6,49 +6,48 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 400 px;
-      margin: 40 px auto;
-      padding: 20 px;
-      border: 1 px solid #ddd;
-      border-radius: 8 px;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
       background: #f9f9f9;
     }
     label {
       display: block;
-      margin-top: 15 px;
+      margin-top: 15px;
     }
     input[type="text"] {
       width: 100%;
-      padding: 8 px;
-      margin-top: 5 px;
+      padding: 8px;
+      margin-top: 5px;
       box-sizing: border-box;
     }
     button {
-      margin-top: 20 px;
-      padding: 10 px 15 px;
+      margin-top: 20px;
+      padding: 10px 15px;
       background-color: #0078D7;
       color: white;
       border: none;
-      border-radius: 4 px;
+      border-radius: 4px;
       cursor: pointer;
     }
     button:hover {
       background-color: #005EA2;
     }
-    #result 
-    {
-      margin-top: 25 px;
-      padding: 15 px;
+    #result {
+      margin-top: 25px;
+      padding: 15px;
       background: #e6f7ff;
-      border: 1 px solid #91d5ff;
-      border-radius: 6 px;
+      border: 1px solid #91d5ff;
+      border-radius: 6px;
     }
     #error {
-     { margin-top: 25 px;
-      padding: 15 px;
+      margin-top: 25px;
+      padding: 15px;
       background: #fff1f0;
-      border: 1 px solid #ffa39e;
-      border-radius: 6 px;
+      border: 1px solid #ffa39e;
+      border-radius: 6px;
       color: #cf1322;
     }
   </style>
@@ -110,25 +109,4 @@
           throw new Error(err.detail || "Unknown error");
         }
 
-        const result = await response.json();
-
-        let html = `<strong>Prediction:</strong> ${result.prediction}<br><br>`;
-
-        if (result.probabilities) {
-          html += `<strong>Probabilities:</strong><ul>`;
-          for (const [label, prob] of Object.entries(result.probabilities)) {
-            html += `<li>${label}: ${(prob * 100).toFixed(2)}%</li>`;
-          }
-          html += `</ul>`;
-        }
-
-        resultDiv.innerHTML = html;
-        resultDiv.style.display = "block";
-      } catch (err) {
-        errorDiv.textContent = "Error: " + err.message;
-        errorDiv.style.display = "block";
-      }
-    });
-  </script>
-</body>
-</html>
+        const result = await res
