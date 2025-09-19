@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, conlist
+from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import os
 from sklearn.datasets import load_iris
@@ -11,14 +12,20 @@ MODEL_PATH = "model.joblib"
 
 app = FastAPI(title="Iris Classifier API", version="1.0")
 
-class IrisFeatures(BaseModel):
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
+# ✅ Allow CORS (for frontend on another domain)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 🔒 You can restrict this later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ Accept 'point': list of 4 floats
+class PointInput(BaseModel):
+    point: conlist(float, min_items=4, max_items=4)
 
 def train_default_model():
-    """Train and return a pipeline on the built-in iris dataset (fallback)."""
     iris = load_iris()
     X, y = iris.data, iris.target
     pipeline = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators=100, random_state=42))
@@ -27,10 +34,8 @@ def train_default_model():
 
 def load_model():
     if os.path.exists(MODEL_PATH):
-        data = joblib.load(MODEL_PATH)
-        return data
+        return joblib.load(MODEL_PATH)
     else:
-        # fallback: train fresh and save for convenience
         data = train_default_model()
         joblib.dump(data, MODEL_PATH)
         return data
@@ -41,19 +46,18 @@ target_names = model_bundle["target_names"]
 
 @app.get("/")
 def root():
-    return {"message": "Iris classifier is alive. POST to /predict with sepal/petal measurements."}
+    return {"message": "Iris classifier is alive. POST to /predict with `point` as list of 4 numbers."}
 
 @app.post("/predict")
-def predict(features: IrisFeatures):
-    X = [[features.sepal_length, features.sepal_width, features.petal_length, features.petal_width]]
+def predict(input_data: PointInput):
+    X = [input_data.point]  # single sample
     try:
         pred_idx = int(pipeline.predict(X)[0])
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    proba = pipeline.predict_proba(X)[0].tolist() if hasattr(pipeline, "predict_proba") else None
 
-    # build probability dict if available
-    if proba is not None:
+    if hasattr(pipeline, "predict_proba"):
+        proba = pipeline.predict_proba(X)[0]
         probs = {name: float(p) for name, p in zip(target_names, proba)}
     else:
         probs = None
