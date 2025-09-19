@@ -6,10 +6,10 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 400 px;
-      margin: 40 px auto;
-      padding: 20 px;
-      border: 1 px solid #ddd;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
       border-radius: 8px;
       background: #f9f9f9;
     }
@@ -84,18 +84,15 @@
       resultDiv.innerHTML = "";
       errorDiv.innerHTML = "";
 
-      // Parse input
       const input = form.point.value.trim();
       const values = input.split(",").map(v => parseFloat(v.trim()));
 
-      // Validate
       if (values.length !== 4 || values.some(isNaN)) {
         errorDiv.textContent = "Please enter exactly 4 numeric values separated by commas.";
         errorDiv.style.display = "block";
         return;
       }
 
-      // Build request payload
       const payload = { point: values };
 
       try {
@@ -114,7 +111,6 @@
 
         const result = await response.json();
 
-        // Display prediction and probabilities
         let html = `<strong>Prediction:</strong> ${result.prediction}<br><br>`;
 
         if (result.probabilities) {
