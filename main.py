@@ -1,61 +1,137 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import joblib
-import os
-from sklearn.datasets import load_iris
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Iris Classifier</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #0078D7;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005EA2;
+    }
+    #result {
+      margin-top: 25px;
+      padding: 15px;
+      background: #e6f7ff;
+      border: 1px solid #91d5ff;
+      border-radius: 6px;
+    }
+    #error {
+      margin-top: 25px;
+      padding: 15px;
+      background: #fff1f0;
+      border: 1px solid #ffa39e;
+      border-radius: 6px;
+      color: #cf1322;
+    }
+  </style>
+</head>
+<body>
+  <h1>Iris Classifier</h1>
 
-MODEL_PATH = "model.joblib"
+  <form id="irisForm">
+    <label for="point">Enter Features (comma-separated):</label>
+    <input
+      type="text"
+      id="point"
+      name="point"
+      placeholder="e.g. 5.1, 3.5, 1.4, 0.2"
+      required
+    />
 
-app = FastAPI(title="Iris Classifier API", version="1.0")
+    <button type="submit">Predict</button>
+  </form>
 
-class IrisFeatures(BaseModel):
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
+  <div id="result" style="display:none;"></div>
+  <div id="error" style="display:none;"></div>
 
-def train_default_model():
-    """Train and return a pipeline on the built-in iris dataset (fallback)."""
-    iris = load_iris()
-    X, y = iris.data, iris.target
-    pipeline = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators=100, random_state=42))
-    pipeline.fit(X, y)
-    return {"pipeline": pipeline, "target_names": iris.target_names.tolist()}
+  <script>
+    const form = document.getElementById("irisForm");
+    const resultDiv = document.getElementById("result");
+    const errorDiv = document.getElementById("error");
 
-def load_model():
-    if os.path.exists(MODEL_PATH):
-        data = joblib.load(MODEL_PATH)
-        return data
-    else:
-        # fallback: train fresh and save for convenience
-        data = train_default_model()
-        joblib.dump(data, MODEL_PATH)
-        return data
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-model_bundle = load_model()
-pipeline = model_bundle["pipeline"]
-target_names = model_bundle["target_names"]
+      resultDiv.style.display = "none";
+      errorDiv.style.display = "none";
+      resultDiv.innerHTML = "";
+      errorDiv.innerHTML = "";
 
-@app.get("/")
-def root():
-    return {"message": "Iris classifier is alive. POST to /predict with sepal/petal measurements."}
+      // Parse input
+      const input = form.point.value.trim();
+      const values = input.split(",").map(v => parseFloat(v.trim()));
 
-@app.post("/predict")
-def predict(features: IrisFeatures):
-    X = [[features.sepal_length, features.sepal_width, features.petal_length, features.petal_width]]
-    try:
-        pred_idx = int(pipeline.predict(X)[0])
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    proba = pipeline.predict_proba(X)[0].tolist() if hasattr(pipeline, "predict_proba") else None
+      // Validate
+      if (values.length !== 4 || values.some(isNaN)) {
+        errorDiv.textContent = "Please enter exactly 4 numeric values separated by commas.";
+        errorDiv.style.display = "block";
+        return;
+      }
 
-    # build probability dict if available
-    if proba is not None:
-        probs = {name: float(p) for name, p in zip(target_names, proba)}
-    else:
-        probs = None
+      // Build request payload
+      const payload = { point: values };
 
-    return {"prediction": target_names[pred_idx], "probabilities": probs}
+      try {
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.detail || "Unknown error");
+        }
+
+        const result = await response.json();
+
+        // Display prediction and probabilities
+        let html = `<strong>Prediction:</strong> ${result.prediction}<br><br>`;
+
+        if (result.probabilities) {
+          html += `<strong>Probabilities:</strong><ul>`;
+          for (const [label, prob] of Object.entries(result.probabilities)) {
+            html += `<li>${label}: ${(prob * 100).toFixed(2)}%</li>`;
+          }
+          html += `</ul>`;
+        }
+
+        resultDiv.innerHTML = html;
+        resultDiv.style.display = "block";
+      } catch (err) {
+        errorDiv.textContent = "Error: " + err.message;
+        errorDiv.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
