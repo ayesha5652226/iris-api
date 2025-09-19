@@ -35,7 +35,8 @@
     button:hover {
       background-color: #005EA2;
     }
-    #result {
+    #result 
+    {
       margin-top: 25 px;
       padding: 15 px;
       background: #e6f7ff;
@@ -43,7 +44,7 @@
       border-radius: 6 px;
     }
     #error {
-      margin-top: 25 px;
+     { margin-top: 25 px;
       padding: 15 px;
       background: #fff1f0;
       border: 1 px solid #ffa39e;
